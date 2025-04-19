@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Team Hope Technologies - Network Manager</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+  <div class="topnav">
+    <div class="header">
+		<div class="headercolumn"><img class="logo" src="hope sprung.svg"></div>
+		<div class="headercolumn">Team Hope Technologies<br>Network Manager</div>
+		<div class="headercolumn"> </div>
+	</div>
+  </div>
+  <div class="content">
+    <div class="card-grid">
+      <div class="card">
+        <form action="/" method="POST">
+          <p>
+			<table>
+				<tr>
+					<td class="header"><label for="networkmode">Network Mode</label></td>
+					<td class="input"><input type="radio" id ="wifi" name="networkmode">WiFi
+					    <input type="radio" id ="lan" name="networkmode" checked="checked">LAN</td>
+				</tr>
+				<tr>
+					<td class="header"><label for="ssid">SSID</label></td>
+					<td class="input"><input type="text" id ="ssid" name="ssid"></td>
+				</tr>
+				<tr>
+					<td class="header"><label for="pass">Password</label></td>
+					<td class="input"><input type="text" id ="pass" name="pass"></td>
+				</tr>
+				<tr>
+					<td class="header"><label for="ip">IP Address</label></td>
+					<td class="input"><input type="text" id ="ip" name="ip" value="192.168.1.200">(leave empty for DHCP)</td>
+				</tr>
+				<tr>
+					<td class="header"><label for="gateway">Gateway Address</label></td>
+					<td class="input"><input type="text" id ="gateway" name="gateway" value="192.168.1.1"></td>
+				</tr>
+				<tr>
+					<td class="header"><label for="nodename">Nodename</label></td>
+					<td class="input"><input type="text" id ="nodename" name="nodename" value="mydevice"></td>
+				</tr>
+				<tr>
+					<td class="submit" colspan=2><input type ="submit" value ="Submit"></td>
+				</td>
+			</table>
+          </p>
+        </form>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
