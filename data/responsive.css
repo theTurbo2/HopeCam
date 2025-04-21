@@ -10,9 +10,9 @@
       font-size: 15px;
     }
     .report-topic-heading,
-    .item1,
-    .items {
-      width: 800px;
+    .options,
+    .option {
+      width: 100%;
     }
   }
   
@@ -27,8 +27,8 @@
       font-size: 20px;
     }
     .report-topic-heading,
-    .item1,
-    .items {
+    .options,
+    .option {
       width: 700px;
     }
     .navcontainer {
@@ -70,10 +70,9 @@
   
   @media screen and (max-width: 490px) {
     .message {
-      display: none;
     }
     .logosec {
-      width: 100%;
+      gap: 30px;
       justify-content: space-between;
     }
     .logo {
@@ -98,8 +97,8 @@
       font-size: 20px;
     }
     .report-topic-heading,
-    .item1,
-    .items {
+    .options,
+    .option {
       width: 550px;
     }
   }
@@ -142,8 +141,8 @@
       font-size: 10px;
     }
     .report-topic-heading,
-    .item1,
-    .items {
+    .options,
+    .option {
       width: 300px;
     }
     .report-body {

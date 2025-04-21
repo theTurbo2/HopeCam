@@ -38,10 +38,26 @@
 
         <div class="message " >
             <div class="imgbox ">
-                <img src= "img/light_off.svg" 
+                <img id="ledBtn" src= "img/light_off.svg" 
                  class="icn no-alert-img" 
                  alt="">
             </div>
+            <script>
+                const ledBtn = document.getElementById("ledBtn");
+                let ledOn = false;
+              
+                ledBtn.onclick = () => {
+                  ledOn = !ledOn;
+                  fetch(`/led?on=${ledOn ? 1 : 0}`)
+                    .then(res => res.text())
+                    .then(msg => {
+                        ledBtn.src = ledOn
+                            ? "img/light_on.svg"
+                            : "img/light_off.svg";
+                        console.log(msg);
+                    });
+                };
+              </script>
         </div>
 
     </header>
@@ -50,7 +66,7 @@
         <div class="navcontainer">
                 <nav class="nav">
                 <div class="nav-upper-options">
-                    <div class="nav-option option1">
+                    <div class="nav-option option_selected">
                         <div class="imgbox">
                             <img src= "img/home.svg"
                             class="nav-img" 
@@ -59,15 +75,20 @@
                         <h3> Overview </h3>
                     </div>
 
-                    <div class="nav-option option3">
+                    <div id="loadNetwork" class="nav-option option_notselected" >
                         <div class="imgbox">
                             <img src= "img/network.svg"
                             class="nav-img" 
                             alt="network">
                         </div>
-                        <h3> Network<br/>Setting</h3>
+                        <h3> Network<br/>Settings</h3>
                     </div>
-
+                    <script>
+                        const loadNetwork = document.getElementById("loadNetwork");
+                        loadNetwork.onclick = () => {
+                            window.location.href = "network.html"; // Path to the page you want to load));                   
+                        };
+                    </script>
                 </div>
             </nav>
         </div>
@@ -79,7 +100,7 @@
                 </div>
 
                     <div class="stream-body" style="width: 400px; height: 400px; position: relative;">
-                        <img src="/stream" style="position: absolute;transform: translate(100%,0) rotate(90deg);transform-origin: top left;"/>
+                        <img src="/stream" style="position: absolute;transform: translate(75%,0) rotate(90deg);transform-origin: top left;"/>
                     </div>
             </div>
         </div>

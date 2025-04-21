@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible"
+          content="IE=edge">
+    <meta name="viewport" 
+          content="width=device-width, 
+                   initial-scale=1.0">
+    <title>Team Hope</title>
+    <link rel="stylesheet" 
+          href="style.css">
+    <link rel="stylesheet" 
+          href="responsive.css">
+    <link rel="icon" href="/favicon.ico" type="image/vnd.microsoft.icon">
+</head>
+
+<body>
+  
+    <!-- for header part -->
+    <header>
+
+        <div class="logosec">
+            <img src="img/hopesprung.svg"
+                class="icn" 
+                id="hopelogo" 
+                alt="hopelogo">
+            <img src= "img/menu.svg"
+                class="icn menuicn" 
+                id="menuicn" 
+                alt="menu-icon">                
+        </div>
+
+        <div class="productbar">
+            <div class="logo">Hope Cam</div>
+        </div>
+
+        <div class="message " >
+            <div class="imgbox ">
+                <img id="ledBtn" src= "img/light_off.svg" 
+                 class="icn no-alert-img" 
+                 alt="">
+            </div>
+            <script>
+                const ledBtn = document.getElementById("ledBtn");
+                let ledOn = false;
+              
+                ledBtn.onclick = () => {
+                  ledOn = !ledOn;
+                  fetch(`/led?on=${ledOn ? 1 : 0}`)
+                    .then(res => res.text())
+                    .then(msg => {
+                        ledBtn.src = ledOn
+                            ? "img/light_on.svg"
+                            : "img/light_off.svg";
+                        console.log(msg);
+                    });
+                };
+              </script>
+        </div>
+
+    </header>
+
+    <div class="main-container">
+        <div class="navcontainer">
+                <nav class="nav">
+                <div class="nav-upper-options">
+                    <div id="loadMain" class="nav-option option_notselected">
+                        <div class="imgbox">
+                            <img src= "img/home.svg"
+                            class="nav-img" 
+                            alt="home">
+                        </div>
+                        <h3> Overview </h3>
+                    </div>
+                    <script>
+                        const loadNetwork = document.getElementById("loadMain");
+                        loadNetwork.onclick = () => {
+                            window.location.href = "index.html"; // Path to the page you want to load));                   
+                        };
+                    </script>
+                    <div class="nav-option option_selected">
+                        <div class="imgbox">
+                            <img src= "img/network.svg"
+                            class="nav-img" 
+                            alt="network">
+                        </div>
+                        <h3> Network<br/>Settings</h3>
+                    </div>
+
+                </div>
+            </nav>
+        </div>
+        <div class="main">
+
+            <div class="option-container">
+                <div class="option-header">
+                    <h1 class="recent-Log">Network Settings</h1>
+                </div>
+
+                <div class="option-body" style="width: min-content; position: relative;">
+                
+                    <div class="option-block">
+                        
+                        <h3>
+                            <div class="imgbox option-img">
+                                <img src= "img/wifi.svg"
+                                class="nav-img" 
+                                alt="network">
+                            </div>
+                            WiFi Settings</h3>
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <h3 class="t-op-nextlvl">SSID</h3>
+                            <h3 class="t-op-nextlvl"><input class="option-input" type="text" id="ssid" name="ssid" required /></h3>
+                        </div>
+                        <div class="option">
+                            <h3 class="t-op-nextlvl">Password</h3>
+                            <h3 class="t-op-nextlvl"><input class="option-input" type="text" id="ssid" name="ssid" required /></h3>
+                        </div>
+                    </div>
+
+
+                    <div class="option-block">
+                        <h3>
+                            <div class="imgbox option-img">
+                                <img src= "img/network.svg"
+                                class="nav-img" 
+                                alt="network">
+                            </div>
+                            Network Settings</h3>
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <h3 class="t-op-nextlvl">DHCP</h3>
+                            <h3 class="t-op-nextlvl">
+                                <div>
+                                    <input type="radio" id="DHCP" name="dhcp_method" value="es" checked />YES <br/>
+                                    <input type="radio" id="DHCP" name="dhcp" value="no" checked />NO
+                                </div>
+                            </h3>
+                        </div>
+                        <div class="option">
+                            <h3 class="t-op-nextlvl">IP Address</h3>
+                            <h3 class="t-op-nextlvl"><input class="option-input" type="text" id="ip" name="ip" required /></h3>
+                        </div>
+                        <div class="option">
+                            <h3 class="t-op-nextlvl">Netmask</h3>
+                            <h3 class="t-op-nextlvl"><input class="option-input" type="text" id="netmask" name="netmask" required /></h3>
+                        </div>
+                        <div class="option">
+                            <h3 class="t-op-nextlvl">Gateway</h3>
+                            <h3 class="t-op-nextlvl"><input class="option-input" type="text" id="netmask" name="netmask" required /></h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="./index.js"></script>
+    <script>
+
+    document.addEventListener('DOMContentLoaded', function (event) {
+        var baseHost = document.location.origin
+        var streamUrl = baseHost + ':81'
+      
+        const hide = el => {
+          el.classList.add('hidden')
+        }
+        const show = el => {
+          el.classList.remove('hidden')
+        }
+      
+        const disable = el => {
+          el.classList.add('disabled')
+          el.disabled = true
+        }
+      
+        const enable = el => {
+          el.classList.remove('disabled')
+          el.disabled = false
+        }
+      
+        const updateValue = (el, value, updateRemote) => {
+          updateRemote = updateRemote == null ? true : updateRemote
+          let initialValue
+          if (el.type === 'checkbox') {
+            initialValue = el.checked
+            value = !!value
+            el.checked = value
+          } else {
+            initialValue = el.value
+            el.value = value
+          }
+      
+          if (updateRemote && initialValue !== value) {
+            updateConfig(el);
+          } else if(!updateRemote){
+            if(el.id === "aec"){
+              value ? hide(exposure) : show(exposure)
+            } else if(el.id === "agc"){
+              if (value) {
+                show(gainCeiling)
+                hide(agcGain)
+              } else {
+                hide(gainCeiling)
+                show(agcGain)
+              }
+            } else if(el.id === "awb_gain"){
+              value ? show(wb) : hide(wb)
+            } else if(el.id === "face_recognize"){
+              value ? enable(enrollButton) : disable(enrollButton)
+            }
+          }
+        }
+      
+        function updateConfig (el) {
+          let value
+          switch (el.type) {
+            case 'checkbox':
+              value = el.checked ? 1 : 0
+              break
+            case 'range':
+            case 'select-one':
+              value = el.value
+              break
+            case 'button':
+            case 'submit':
+              value = '1'
+              break
+            default:
+              return
+          }
+      
+          const query = `${baseHost}/net_control?var=${el.id}&val=${value}`
+      
+          fetch(query)
+            .then(response => {
+              console.log(`request to ${query} finished, status: ${response.status}`)
+            })
+        }
+      
+        document
+          .querySelectorAll('.close')
+          .forEach(el => {
+            el.onclick = () => {
+              hide(el.parentNode)
+            }
+          })
+      
+        // read initial values
+        fetch(`${baseHost}/net_status`)
+          .then(function (response) {
+            return response.json()
+          })
+          .then(function (state) {
+            document
+              .querySelectorAll('.default-action')
+              .forEach(el => {
+                updateValue(el, state[el.id], false)
+              })
+          })
+      
+        // Attach default on change action
+        document
+          .querySelectorAll('.default-action')
+          .forEach(el => {
+            el.onchange = () => updateConfig(el)
+          })
+    }); 
+      
+    </script>
+      
+</body>
+</html>
