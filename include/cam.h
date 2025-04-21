@@ -1,0 +1,3 @@
+namespace CAM {
+    void StartCamera();
+}
