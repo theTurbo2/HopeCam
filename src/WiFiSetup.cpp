@@ -3,6 +3,7 @@
 #include <ESPAsyncWebServer.h>
 #include <AsyncTCP.h>
 #include "LittleFS.h"
+#include <DNSServer.h>
 
 #include "WiFiSetup.h"
 
@@ -23,6 +24,8 @@ namespace WiFiSetup
   const char* nodenamePath = "/nodename.txt";
 
   int wifimode;
+  DNSServer dnsServer;
+  bool dnsServerActive = false;
 
   #define DEBUG_WIFISETUP 1
 
@@ -38,6 +41,13 @@ namespace WiFiSetup
 
   //IPAddress localGateway(192, 168, 1, 1); //hardcoded
   IPAddress subnet(255, 255, 255, 0);
+
+  void resetConfig() {
+      LittleFS.remove(ssidPath);
+      Serial.println("Double Reset. Clean SSID and reboot ...");
+      delay(3000);
+      ESP.restart();
+  }
 
   // setup WiFi
   // mode: WIFI_STARTUP_NORMAL    - start in AP mode and try to configure if no config is available. 
@@ -75,7 +85,8 @@ namespace WiFiSetup
   bool initWifi(AsyncWebServer *server) 
   {  
     bool check = checkSetup();
-
+    dnsServerActive = false;
+    
     if (check && (wifimode == WIFI_STARTUP_NORMAL)) {
       Serial.println("WiFi setup OK.");
       return true;
@@ -89,7 +100,7 @@ namespace WiFiSetup
       Serial.println("... using configured params");
       Serial.println(ssid);
       Serial.println(pass);
-      WiFi.softAP(ssid, pass);
+      WiFi.softAP(ssid.c_str(), pass.c_str());
     }
     else
     {
@@ -100,6 +111,13 @@ namespace WiFiSetup
     IPAddress IP = WiFi.softAPIP();
     Serial.print("AP IP address: ");
     Serial.println(IP);
+
+    if (!dnsServer.start(53, "*", IP)) {
+      Serial.println("Failed to start DNS");
+    } else {
+      Serial.println("DNS started - pointing all request to " + IP.toString());
+      dnsServerActive = true;
+    }
 
     if (!check) {
       runConfigServer(server);
@@ -113,6 +131,9 @@ namespace WiFiSetup
     
   bool checkSetup() 
   {
+    ssid = "turbos_wlan";
+    pass = "11223344556677889900112233";
+    
     if (
       ssid == "") {
       Serial.println("Undefined SSID");
@@ -226,6 +247,10 @@ namespace WiFiSetup
     });
   }
 
+  void loop() {
+    if (dnsServerActive)
+      dnsServer.processNextRequest();
+  }
 /*
   void reconnect() {
     if (WiFi.status() != WL_CONNECTED) {
@@ -285,3 +310,4 @@ namespace WiFiSetup
     }
   }
 }
+

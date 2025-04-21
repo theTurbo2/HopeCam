@@ -6,19 +6,31 @@
 *********/
 #include <Arduino.h>
 #include <WiFi.h>
+#include "LITTLEFS.h"
 #include <ESPAsyncWebServer.h>
 #include <AsyncTCP.h>
-#include "LittleFS.h"
 
 #include "WiFiSetup.h"
 #include "cam.h"
+#include "Webserver.h"
 
-// Create AsyncWebServer object on port 80
+#define ESP_DRD_USE_LITTLEFS    true
+#define ESP_DRD_USE_SPIFFS      false
+#define ESP_DRD_USE_EEPROM      false
+#define DRD_TIMEOUT             10
+#define DRD_ADDRESS             0
+#define DOUBLERESETDETECTOR_DEBUG       true
+#include <ESP_DoubleResetDetector.h>            //https://github.com/khoih-prog/ESP_DoubleResetDetector
+
+#define CAM_ASYNC
+
 AsyncWebServer server(80);
+
+DoubleResetDetector* drd;
 
 // Initialize LittleFS
 void initLittleFS() {
-  if (!LittleFS.begin(true)) {
+  if (!LittleFS.begin(false)) {
     Serial.println("An error has occurred while mounting LittleFS");
   }
   Serial.println("LittleFS mounted successfully");
@@ -26,26 +38,29 @@ void initLittleFS() {
 
 void setup() {
   // Serial port for debugging purposes
-  Serial.begin(115200);
+  Serial.begin(19200);
+
+  Serial.print("Runninng Build Version from ");
+  Serial.println(CURRENT_TIME) ;
 
   initLittleFS();
 
-  WiFiSetup::setup(WIFI_STARTUP_AP_ALWAYS);
-  //WiFiSetup::setup(WIFI_STARTUP_NORMAL);
+  drd = new DoubleResetDetector(DRD_TIMEOUT, DRD_ADDRESS);
+  if (drd->detectDoubleReset()) { 
+    //WiFiSetup::resetConfig();  
+  }
 
-  if (WiFiSetup::initWifi(&server)) 
+  //WiFiSetup::setup(WIFI_STARTUP_AP_ALWAYS);
+  WiFiSetup::setup(WIFI_STARTUP_NORMAL);
+
+  if (WiFiSetup::initWifi(&server))
   {
-
-    Cam::setup();
-
-    //install page handlers
-    Serial.println("install handlers");
-
-    server.serveStatic("/", LittleFS, "/");
-
-    server.begin();
+    CAM::StartCamera();
+    WEBSERVER::StartServer(&server);
   }
 }
 
 void loop() {
+  drd->loop();
+  WiFiSetup::loop();
 }

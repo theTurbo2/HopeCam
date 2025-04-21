@@ -1,5 +1,7 @@
-#include "esp_camera.h"
 #include <WiFi.h>
+#include <ESPAsyncWebServer.h>
+#include <AsyncTCP.h>
+#include "esp_camera.h"
 #include "cam.h"
 
 //
@@ -9,15 +11,10 @@
 
 #include "camera_pins.h"
 
-namespace Cam
+
+namespace CAM
 {
-  uint32_t startlight = 0;
-
-  TaskHandle_t flashLightTask;
-
-  void startCameraServer();
-
-  void setup() {
+  void StartCamera() {
 
     camera_config_t config;
     config.ledc_channel = LEDC_CHANNEL_0;
@@ -70,19 +67,9 @@ namespace Cam
     //drop down frame size for higher initial frame rate
     s->set_framesize(s, FRAMESIZE_QVGA);
 
-    startCameraServer();
-
-    Serial.print("Camera Ready! Use 'http://");
-    Serial.print(WiFi.localIP());
-    Serial.println("' to connect");
-
-    pinMode(4, OUTPUT);
-    digitalWrite(4,0);
-
-    xTaskCreatePinnedToCore( doFlashLight, "flashTask", 10000, NULL, 1, &flashLightTask, 0);
-
+    Serial.println("Camera Ready!");
   } 
-
+/*
   void doFlashLight( void * pvParameters ) 
   {
     for (;;) {
@@ -95,4 +82,5 @@ namespace Cam
       vTaskDelay(1000);
     }
   }
+*/
 }
