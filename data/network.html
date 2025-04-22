@@ -114,11 +114,11 @@
                     <div class="options">
                         <div class="option">
                             <h3 class="t-op-nextlvl">SSID</h3>
-                            <h3 class="t-op-nextlvl"><input class="option-input" type="text" id="ssid" name="ssid" required /></h3>
+                            <h3 class="t-op-nextlvl"><input class="option-input default-action" type="text" id="ssid" name="ssid" required /></h3>
                         </div>
                         <div class="option">
                             <h3 class="t-op-nextlvl">Password</h3>
-                            <h3 class="t-op-nextlvl"><input class="option-input" type="text" id="ssid" name="ssid" required /></h3>
+                            <h3 class="t-op-nextlvl"><input class="option-input default-action" type="text" id="password" name="password" required /></h3>
                         </div>
                     </div>
 
@@ -135,24 +135,19 @@
                     <div class="options">
                         <div class="option">
                             <h3 class="t-op-nextlvl">DHCP</h3>
-                            <h3 class="t-op-nextlvl">
-                                <div>
-                                    <input type="radio" id="DHCP" name="dhcp_method" value="es" checked />YES <br/>
-                                    <input type="radio" id="DHCP" name="dhcp" value="no" checked />NO
-                                </div>
-                            </h3>
+                            <h3 class="t-op-nextlvl"><input class="option-input default-action" type="checkbox" id="dhcp" name="dhcp"  /></h3>
                         </div>
                         <div class="option">
                             <h3 class="t-op-nextlvl">IP Address</h3>
-                            <h3 class="t-op-nextlvl"><input class="option-input" type="text" id="ip" name="ip" required /></h3>
+                            <h3 class="t-op-nextlvl"><input class="option-input default-action" type="text" id="ip" name="ip" required /></h3>
                         </div>
                         <div class="option">
                             <h3 class="t-op-nextlvl">Netmask</h3>
-                            <h3 class="t-op-nextlvl"><input class="option-input" type="text" id="netmask" name="netmask" required /></h3>
+                            <h3 class="t-op-nextlvl"><input class="option-input default-action" type="text" id="netmask" name="netmask" required /></h3>
                         </div>
                         <div class="option">
                             <h3 class="t-op-nextlvl">Gateway</h3>
-                            <h3 class="t-op-nextlvl"><input class="option-input" type="text" id="netmask" name="netmask" required /></h3>
+                            <h3 class="t-op-nextlvl"><input class="option-input default-action" type="text" id="gateway" name="gateway" required /></h3>
                         </div>
                     </div>
                 </div>
@@ -175,14 +170,21 @@
         }
       
         const disable = el => {
-          el.classList.add('disabled')
-          el.disabled = true
+            el.classList.add('option-input-disabled')
+            el.classList.remove('option-input')
+            el.disabled = true
         }
-      
+
         const enable = el => {
-          el.classList.remove('disabled')
-          el.disabled = false
+            el.classList.remove('option-input-disabled')
+            el.classList.add('option-input')
+            el.disabled = false
         }
+
+        const dhcp = document.getElementById('dhcp')
+        const ip = document.getElementById('ip')
+        const netmask = document.getElementById('netmask')
+        const gateway = document.getElementById('gateway')
       
         const updateValue = (el, value, updateRemote) => {
           updateRemote = updateRemote == null ? true : updateRemote
@@ -201,14 +203,16 @@
           } else if(!updateRemote){
             if(el.id === "aec"){
               value ? hide(exposure) : show(exposure)
-            } else if(el.id === "agc"){
-              if (value) {
-                show(gainCeiling)
-                hide(agcGain)
-              } else {
-                hide(gainCeiling)
-                show(agcGain)
-              }
+            } else if(el.id === "dhcp"){
+                if (value) {
+                    disable(ip)
+                    disable(netmask)
+                    disable(gateway)
+                } else {
+                    enable(ip)
+                    enable(netmask)
+                    enable(gateway)
+                }
             } else if(el.id === "awb_gain"){
               value ? show(wb) : hide(wb)
             } else if(el.id === "face_recognize"){
@@ -234,6 +238,18 @@
             default:
               return
           }
+
+          if(el.id === "dhcp"){
+                if (value) {
+                    disable(ip)
+                    disable(netmask)
+                    disable(gateway)
+                } else {
+                    enable(ip)
+                    enable(netmask)
+                    enable(gateway)
+                }
+            }
       
           const query = `${baseHost}/net_control?var=${el.id}&val=${value}`
       

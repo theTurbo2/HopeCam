@@ -3,11 +3,21 @@ namespace WiFiSetup
   #define WIFI_STARTUP_NORMAL 0
   #define WIFI_STARTUP_AP_ALWAYS 1
 
-  static String ssid;
-  static String pass;
-  static String ip;
-  static String gateway;
-  static String nodename;
+  String getSSID();
+  String getPASS();
+  String getIP();
+  String getGATEWAY();
+  String getNETMASK();
+  String getNODENAME();
+  bool getDHCP();
+
+  void setSSID(String);
+  void setPASS(String);
+  void setIP(String);
+  void setGATEWAY(String);
+  void setNETMASK(String);
+  void setNODENAME(String);
+  void setDHCP(bool);
 
   void setup(int mode);
   bool initWifi(AsyncWebServer *server);

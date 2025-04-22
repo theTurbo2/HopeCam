@@ -382,8 +382,14 @@ header {
 }
 
 .option-input {
-  background-color: #cccccc;
+  background-color: #eeeeee;
   margin-left: 15px;
+}
+
+.option-input-disabled {
+  background-color: #aaaaaa;
+  margin-left: 15px;
+  cursor: not-allowed;
 }
 
 .t-op-nextlvl {

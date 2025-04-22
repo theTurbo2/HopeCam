@@ -9,6 +9,29 @@
 
 namespace WiFiSetup 
 {
+  String ssid;
+  String pass;
+  String ip;
+  String gateway;
+  String netmask;
+  String nodename;
+  bool dhcp;
+
+  void setSSID (String value) {ssid = value; };
+  String getSSID() { return ssid;};
+  void setPASS (String value) {pass = value; };
+  String getPASS() { return pass;};
+  void setIP (String value) {ip = value; };
+  String getIP() { return ip;};
+  void setGATEWAY (String value) {gateway = value; };
+  String getGATEWAY() { return gateway;};
+  void setNETMASK (String value) {netmask = value; };
+  String getNETMASK() { return netmask;};
+  void setNODENAME (String value) {nodename = value; };
+  String getNODENAME () { return nodename;};
+  void setDHCP (bool value) {dhcp = value; };
+  bool getDHCP() { return dhcp;};
+
   // Search for parameter in HTTP POST request
   const char* PARAM_INPUT_1 = "ssid";
   const char* PARAM_INPUT_2 = "pass";
@@ -33,14 +56,6 @@ namespace WiFiSetup
   unsigned long previousMillis = 0;
   const long interval = 10000;  // interval to wait for Wi-Fi connection (milliseconds)
 
-  IPAddress localIP;
-  //IPAddress localIP(192, 168, 1, 200); // hardcoded
-
-  // Set your Gateway IP address
-  IPAddress localGateway;
-
-  //IPAddress localGateway(192, 168, 1, 1); //hardcoded
-  IPAddress subnet(255, 255, 255, 0);
 
   void resetConfig() {
       LittleFS.remove(ssidPath);
@@ -84,6 +99,9 @@ namespace WiFiSetup
 
   bool initWifi(AsyncWebServer *server) 
   {  
+    IPAddress localIP;
+    IPAddress localGateway;
+  
     bool check = checkSetup();
     dnsServerActive = false;
     
@@ -109,6 +127,9 @@ namespace WiFiSetup
     }
 
     IPAddress IP = WiFi.softAPIP();
+    ip = IP.toString();
+    gateway = ip;
+
     Serial.print("AP IP address: ");
     Serial.println(IP);
 
@@ -131,6 +152,10 @@ namespace WiFiSetup
     
   bool checkSetup() 
   {
+    IPAddress localIP;
+    IPAddress localGateway;
+    IPAddress localNetmask(255,255,255,0);
+
     ssid = "turbos_wlan";
     pass = "11223344556677889900112233";
     
@@ -150,9 +175,11 @@ namespace WiFiSetup
 
     localIP.fromString(ip.c_str());
     localGateway.fromString(gateway.c_str());
+    if (netmask != "")
+      localNetmask.fromString(netmask.c_str());
 
     if (ip != "") {
-      if (!WiFi.config(localIP, localGateway, subnet)) {
+      if (!WiFi.config(localIP, localGateway, localNetmask)) {
         Serial.println("STA Failed to configure - redo config please");
         return false;
       }
@@ -160,6 +187,11 @@ namespace WiFiSetup
 
     WiFi.begin(ssid.c_str(), pass.c_str());
     Serial.println("Connecting to WiFi...");
+    ip = WiFi.localIP().toString();
+    netmask = WiFi.subnetMask().toString();
+    gateway = WiFi.gatewayIP().toString();
+    dhcp = true;
+
 
     unsigned long currentMillis = millis();
     previousMillis = currentMillis;
