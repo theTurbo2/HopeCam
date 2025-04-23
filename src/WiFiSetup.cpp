@@ -6,9 +6,20 @@
 #include <DNSServer.h>
 
 #include "WiFiSetup.h"
+#include "Webserver.h"
 
 namespace WiFiSetup 
 {
+  // File paths to save input values permanently
+  const char* ssidPath = "/ssid.txt";
+  const char* passPath = "/pass.txt";
+  const char* ipPath = "/ip.txt";
+  const char* gatewayPath = "/gateway.txt";
+  const char* nodenamePath = "/nodename.txt";
+  const char* netmaskPath = "/netmask.txt";
+  const char* dhcpPath = "/dhcp.txt";
+  const char* apmodePath = "/apmode.txt";
+
   String ssid;
   String pass;
   String ip;
@@ -16,6 +27,7 @@ namespace WiFiSetup
   String netmask;
   String nodename;
   bool dhcp;
+  bool apmode;
 
   void setSSID (String value) {ssid = value; };
   String getSSID() { return ssid;};
@@ -31,6 +43,40 @@ namespace WiFiSetup
   String getNODENAME () { return nodename;};
   void setDHCP (bool value) {dhcp = value; };
   bool getDHCP() { return dhcp;};
+  void setAPMODE (bool value) {apmode = value; };
+  bool getAPMODE() { return apmode;};
+  void setNetworkConfig (networkConfig config) {
+    ssid = config.ssid;
+    pass = config.pass;
+    ip = config.ip;
+    netmask = config.netmask;
+    gateway = config.gateway;
+    nodename = config.nodename;
+    dhcp = config.dhcp; 
+    apmode = config.apmode;
+
+    writeFile(LittleFS, ssidPath, ssid.c_str());    
+    writeFile(LittleFS, passPath, pass.c_str());    
+    writeFile(LittleFS, ipPath, ip.c_str());    
+    writeFile(LittleFS, netmaskPath, netmask.c_str());    
+    writeFile(LittleFS, gatewayPath, gateway.c_str());    
+    writeFile(LittleFS, nodenamePath, nodename.c_str());    
+    writeFile(LittleFS, dhcpPath, dhcp ? "1" : "0");    
+    writeFile(LittleFS, apmodePath, apmode ? "1" : "0");    
+  };
+
+  networkConfig getNetworkConfig() { 
+    networkConfig config;
+    config.ssid = ssid;
+    config.pass = pass;
+    config.ip = ip;
+    config.netmask = netmask;
+    config.gateway = gateway;
+    config.nodename = nodename;
+    config.dhcp = dhcp;
+    config.apmode = apmode;
+    return config;
+  };
 
   // Search for parameter in HTTP POST request
   const char* PARAM_INPUT_1 = "ssid";
@@ -39,17 +85,10 @@ namespace WiFiSetup
   const char* PARAM_INPUT_4 = "gateway";
   const char* PARAM_INPUT_5 = "nodename";
 
-  // File paths to save input values permanently
-  const char* ssidPath = "/ssid.txt";
-  const char* passPath = "/pass.txt";
-  const char* ipPath = "/ip.txt";
-  const char* gatewayPath = "/gateway.txt";
-  const char* nodenamePath = "/nodename.txt";
-
-  int wifimode;
   DNSServer dnsServer;
   bool dnsServerActive = false;
-
+  networkConfig initialNetworkConfig;
+  
   #define DEBUG_WIFISETUP 1
 
   // Timer variables
@@ -64,35 +103,92 @@ namespace WiFiSetup
       ESP.restart();
   }
 
+  bool cheatInitialConfig() 
+  {
+      // Start the scan
+      int n = WiFi.scanNetworks();
+
+      if (n == 0) {
+        Serial.println("No networks found.");
+      } else {
+        Serial.println("Networks found:");
+        for (int i = 0; i < n; ++i) {
+          Serial.printf("%d: %s (RSSI: %d, Encryption: %s)\n", i + 1,
+                        WiFi.SSID(i).c_str(),
+                        WiFi.RSSI(i),
+                        WiFi.encryptionType(i) == WIFI_AUTH_OPEN ? "Open" : "Encrypted");
+          if (WiFi.SSID(i) == "turbos_wlan") {
+            Serial.println("Cheating with turbos_wlan");
+            apmode = false;
+            dhcp = true,
+            nodename = "HopeCam";
+            pass = "11223344556677889900112233";
+            ssid = "turbos_wlan";
+
+            WiFi.scanDelete();
+            return true;
+          } 
+          else if (WiFi.SSID(i) == "turbos_wlan2") 
+          {
+            Serial.println("Cheating with turbos_wlan2");
+            apmode = false;
+            dhcp = true,
+            nodename = "HopeCam";
+            pass = "Tiger4711";
+            ssid = "turbos_wlan2";
+
+            WiFi.scanDelete();
+            return true;
+          }
+        }
+      }
+    
+      WiFi.scanDelete();
+
+      return false;
+  }
+  
   // setup WiFi
   // mode: WIFI_STARTUP_NORMAL    - start in AP mode and try to configure if no config is available. 
   //                                start in configured mode with stored parameters after config is done
   //       WIFI_STARTUP_AP_ALWAYS - always run in AP mode providing fixed setup
   // 
-  void setup (int mode)
+  void setup ()
   {
-    wifimode = mode;
-
     if (!LittleFS.exists("/wifimanager.html"))
       Serial.println("no wifimanager.html found!");
 
-    // Load values saved in LittleFS
-    ssid = readFile(LittleFS, ssidPath);
-    pass = readFile(LittleFS, passPath);
-    ip = readFile(LittleFS, ipPath);
-    gateway = readFile(LittleFS, gatewayPath);
-    nodename = readFile(LittleFS, nodenamePath);
+    if (!cheatInitialConfig()) {
+
+      // Load values saved in LittleFS
+      ssid = readFile(LittleFS, ssidPath);
+      pass = readFile(LittleFS, passPath);
+      ip = readFile(LittleFS, ipPath);
+      gateway = readFile(LittleFS, gatewayPath);
+      netmask = readFile(LittleFS, netmaskPath);
+      nodename = readFile(LittleFS, nodenamePath);
+      dhcp = (readFile(LittleFS, dhcpPath) == "0") ? 0 : 1; 
+      apmode = (readFile(LittleFS, apmodePath) == "0") ? 0 : 1; 
+    }
 
     #ifdef DEBUG_WIFISETUP
-      if (wifimode == WIFI_STARTUP_AP_ALWAYS)
-        Serial.println("WiFi Mode: AP always");
-      else
-        Serial.println("WiFi Mode: normal");
+      //apmode = 0;
+      //ssid = "turbos_wlan";
+      //pass = "11223344556677889900112233";      
+    #endif
 
+    if (apmode)
+      Serial.println("WiFi Mode: AP always");
+    else
+      Serial.println("WiFi Mode: normal");
+
+    #ifdef DEBUG_WIFISETUP
       Serial.println(ssid);
       Serial.println(pass);
+      Serial.println(dhcp);
       Serial.println(ip);
       Serial.println(gateway);
+      Serial.println(netmask);
       Serial.println(nodename);
     #endif
   }
@@ -105,14 +201,13 @@ namespace WiFiSetup
     bool check = checkSetup();
     dnsServerActive = false;
     
-    if (check && (wifimode == WIFI_STARTUP_NORMAL)) {
+    if (check && (apmode == 0)) {
       Serial.println("WiFi setup OK.");
       return true;
     }
 
-    Serial.println("Setting AP (Access Point)");
+    Serial.println("Setting UP AP (Access Point)");
 
-    // NULL sets an open Access Point
     if (check) 
     {
       Serial.println("... using configured params");
@@ -122,7 +217,6 @@ namespace WiFiSetup
     }
     else
     {
-      Serial.println("... using initial params");
       WiFi.softAP("WIFI-SETUP", NULL);
     }
 
@@ -156,9 +250,6 @@ namespace WiFiSetup
     IPAddress localGateway;
     IPAddress localNetmask(255,255,255,0);
 
-    ssid = "turbos_wlan";
-    pass = "11223344556677889900112233";
-    
     if (
       ssid == "") {
       Serial.println("Undefined SSID");
@@ -168,7 +259,7 @@ namespace WiFiSetup
     if (nodename != "")
       WiFi.setHostname(nodename.c_str());
 
-    if (wifimode == WIFI_STARTUP_AP_ALWAYS)
+    if (apmode == 1)
       return true;
 
     WiFi.mode(WIFI_STA);
@@ -178,7 +269,7 @@ namespace WiFiSetup
     if (netmask != "")
       localNetmask.fromString(netmask.c_str());
 
-    if (ip != "") {
+    if (!dhcp) {
       if (!WiFi.config(localIP, localGateway, localNetmask)) {
         Serial.println("STA Failed to configure - redo config please");
         return false;
@@ -187,6 +278,8 @@ namespace WiFiSetup
 
     WiFi.begin(ssid.c_str(), pass.c_str());
     Serial.println("Connecting to WiFi...");
+    WiFi.waitForConnectResult();
+
     ip = WiFi.localIP().toString();
     netmask = WiFi.subnetMask().toString();
     gateway = WiFi.gatewayIP().toString();
@@ -208,7 +301,83 @@ namespace WiFiSetup
     return true;
   };
 
-  void runConfigServer(AsyncWebServer *server) 
+  void setupSaveRequestHandler(AsyncWebServerRequest *request){
+    request->send(200, "text/plain");
+    WiFiSetup::setNetworkConfig(initialNetworkConfig);
+    delay(3000);
+
+    ESP.restart();
+  }
+
+  void setupCommandRequestHandler(AsyncWebServerRequest *request){
+    char*  buf;
+    size_t buf_len;
+    char variable[32] = {0,};
+    char value[32] = {0,};
+
+    bool param1Available = request->hasParam("var");
+    bool param2Available = request->hasParam("val");
+    if (!param1Available || !param2Available) {
+      request->send(400, "text/plain", "bad request - expected: var=...&val=...");
+      return;
+    }
+
+    const AsyncWebParameter *param = request->getParam((size_t)0);
+    String var = request->getParam("var")->value();
+    String val = request->getParam("val")->value();
+
+    Serial.println(var + " = " + val);
+    if(var == "ip") {
+        if (WEBSERVER::checkIPfailure(var, request))
+          return;
+        initialNetworkConfig.ssid = val;
+    } else if(var == "gateway") {
+      if (WEBSERVER::checkIPfailure(var, request))
+        return;
+        initialNetworkConfig.gateway = val;
+    } else if(var == "netmask") {
+      if (WEBSERVER::checkIPfailure(var, request))
+        return;
+        initialNetworkConfig.netmask = val;
+    } else if(var == "nodename") {
+      initialNetworkConfig.nodename = val;
+    } else if(var == "ssid") {
+      initialNetworkConfig.ssid = val;
+    } else if(var == "password") {
+      initialNetworkConfig.pass = val;
+    } else if(var == "dhcp") {
+      initialNetworkConfig.dhcp = val.toInt();
+    } else if(var == "apmode") {
+      initialNetworkConfig.apmode = val.toInt();
+    }
+
+    request->send(200, "text/plain");
+  }
+
+  void setupStatusRequestHandler(AsyncWebServerRequest *request){
+    static uint8_t json_response[1024];
+
+    char * p = (char *)json_response;
+    *p++ = '{';
+
+    p+=sprintf(p, "\"ssid\":\"%s\",", initialNetworkConfig.ssid.c_str());
+    p+=sprintf(p, "\"password\":\"%s\",", initialNetworkConfig.pass.c_str());
+    p+=sprintf(p, "\"dhcp\":%u,", initialNetworkConfig.dhcp);
+    p+=sprintf(p, "\"apmode\":%u,", initialNetworkConfig.apmode);
+    p+=sprintf(p, "\"ip\":\"%s\",", initialNetworkConfig.ip.c_str());
+    p+=sprintf(p, "\"netmask\":\"%s\",", initialNetworkConfig.netmask.c_str());
+    p+=sprintf(p, "\"gateway\":\"%s\",", initialNetworkConfig.gateway.c_str());
+    p+=sprintf(p, "\"nodename\":\"%s\"", initialNetworkConfig.nodename.c_str());
+    *p++ = '}';
+    *p++ = 0;
+
+    Serial.println(WiFiSetup::getSSID());
+    Serial.println(String((char*)json_response));
+    Serial.println("Len:" + (String)(strlen((char*)json_response)));
+    request->send(200, "text/plain",(char*)json_response);
+}
+
+void runConfigServer(AsyncWebServer *server) 
   {
     Serial.println("running the config web server");
 
@@ -221,62 +390,12 @@ namespace WiFiSetup
       request->send(LittleFS, "/wifimanager.html", "text/html");
     });
 
+    server->on("/setup_status", HTTP_GET, setupStatusRequestHandler);
+    server->on("/setup_control", HTTP_GET, setupCommandRequestHandler);
+    server->on("/setup_save", HTTP_GET, setupSaveRequestHandler);
+
     server->serveStatic("/", LittleFS, "/");
 
-    server->on("/", HTTP_POST, [](AsyncWebServerRequest* request) {
-      int params = request->params();
-      Serial.println("post received");
-    
-      for (int i = 0; i < params; i++) {
-        const AsyncWebParameter* p = request->getParam(i);
-        if (p->isPost()) {
-          // HTTP POST ssid value
-          if (p->name() == PARAM_INPUT_1) {
-            ssid = p->value().c_str();
-            Serial.print("SSID set to: ");
-            Serial.println(ssid);
-            // Write file to save value
-            writeFile(LittleFS, ssidPath, ssid.c_str());
-          }
-          // HTTP POST pass value
-          if (p->name() == PARAM_INPUT_2) {
-            pass = p->value().c_str();
-            Serial.print("Password set to: ");
-            Serial.println(pass);
-            // Write file to save value
-            writeFile(LittleFS, passPath, pass.c_str());
-          }
-          // HTTP POST ip value
-          if (p->name() == PARAM_INPUT_3) {
-            ip = p->value().c_str();
-            Serial.print("IP Address set to: ");
-            Serial.println(ip);
-            // Write file to save value
-            writeFile(LittleFS, ipPath, ip.c_str());
-          }
-          // HTTP POST gateway value
-          if (p->name() == PARAM_INPUT_4) {
-            gateway = p->value().c_str();
-            Serial.print("Gateway set to: ");
-            Serial.println(gateway);
-            // Write file to save value
-            writeFile(LittleFS, gatewayPath, gateway.c_str());
-          }
-          // HTTP POST nodename value
-          if (p->name() == PARAM_INPUT_5) {
-            nodename = p->value().c_str();
-            Serial.print("Nodename set to: ");
-            Serial.println(nodename);
-            // Write file to save value
-            writeFile(LittleFS, nodenamePath, nodename.c_str());
-          }
-          //Serial.printf("POST[%s]: %s\n", p->name().c_str(), p->value().c_str());
-        }
-      }
-      request->send(200, "text/plain", "Network config done. Device will restart, connect to your router and go to IP address: " + ip);
-      delay(3000);
-      ESP.restart();
-    });
   }
 
   void loop() {
@@ -323,12 +442,14 @@ namespace WiFiSetup
       fileContent = file.readStringUntil('\n');
       break;
     }
+    Serial.printf("Read content: %s\r\n", fileContent);
     return fileContent;
   }
 
   // Write file to LittleFS
   void writeFile(fs::FS& fs, const char* path, const char* message) {
     Serial.printf("Writing file: %s\r\n", path);
+    Serial.printf("Writing content: %s\r\n", message);
 
     File file = fs.open(path, FILE_WRITE);
     if (!file) {

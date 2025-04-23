@@ -3,6 +3,17 @@ namespace WiFiSetup
   #define WIFI_STARTUP_NORMAL 0
   #define WIFI_STARTUP_AP_ALWAYS 1
 
+  typedef struct {
+    String ssid;
+    String pass;
+    String ip;
+    String gateway;
+    String netmask;
+    String nodename;
+    bool dhcp;  
+    bool apmode;
+  } networkConfig;
+
   String getSSID();
   String getPASS();
   String getIP();
@@ -10,6 +21,8 @@ namespace WiFiSetup
   String getNETMASK();
   String getNODENAME();
   bool getDHCP();
+  bool getAPMODE();
+  networkConfig getNetworkConfig();
 
   void setSSID(String);
   void setPASS(String);
@@ -18,8 +31,10 @@ namespace WiFiSetup
   void setNETMASK(String);
   void setNODENAME(String);
   void setDHCP(bool);
+  void setAPMODE(bool);
+  void setNetworkConfig(networkConfig);
 
-  void setup(int mode);
+  void setup();
   bool initWifi(AsyncWebServer *server);
   bool checkSetup();
   void runConfigServer(AsyncWebServer *server);

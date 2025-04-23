@@ -120,7 +120,11 @@
                             <h3 class="t-op-nextlvl">Password</h3>
                             <h3 class="t-op-nextlvl"><input class="option-input default-action" type="text" id="password" name="password" required /></h3>
                         </div>
-                    </div>
+                        <div class="option">
+                          <h3 class="t-op-nextlvl">AP Mode</h3>
+                          <h3 class="t-op-nextlvl"><input class="option-input default-action" type="checkbox" id="apmode" name="apmode"  /></h3>
+                      </div>
+                  </div>
 
 
                     <div class="option-block">
@@ -151,6 +155,22 @@
                         </div>
                     </div>
                 </div>
+                <div class="option-footer">
+                  <h2 class="error-Log" id="error-Log"></h2>
+                  <section id="buttons" class="buttons">
+                    <button id="saveBtn">SAVE CONFIG</button>
+                    <script>
+                      var baseHost = document.location.origin
+                      const saveBtn = document.getElementById("saveBtn");
+                    
+                      saveBtn.onclick = () => {
+                        fetch(`${baseHost}/net_save`)
+                          .then(res => res.text())
+                      };
+                    </script>
+                        </section>
+              </div>
+
             </div>
         </div>
     </div>
@@ -185,6 +205,7 @@
         const ip = document.getElementById('ip')
         const netmask = document.getElementById('netmask')
         const gateway = document.getElementById('gateway')
+        const errorLog = document.getElementById('error-Log')
       
         const updateValue = (el, value, updateRemote) => {
           updateRemote = updateRemote == null ? true : updateRemote
@@ -229,6 +250,7 @@
               break
             case 'range':
             case 'select-one':
+            case 'text':
               value = el.value
               break
             case 'button':
@@ -254,9 +276,20 @@
           const query = `${baseHost}/net_control?var=${el.id}&val=${value}`
       
           fetch(query)
-            .then(response => {
-              console.log(`request to ${query} finished, status: ${response.status}`)
+            .then(async response => {
+              if (!response.ok) {
+                const errorData = await response.json();
+                document.getElementById('error-Log').textContent = errorData.details;
+              } else {
+                document.getElementById('error-Log').textContent = ""
+              }
+
+
             })
+            .catch(error => {
+              console.error('Fetch error:', error);
+            });
+            
         }
       
         document

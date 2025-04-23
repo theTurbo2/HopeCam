@@ -8,6 +8,71 @@
 namespace WEBSERVER {
 
     bool ledState = false;
+    WiFiSetup::networkConfig newNetworkConfig;
+
+    bool checkIPfailure(String val, AsyncWebServerRequest *request)
+    {
+      IPAddress dummy; dummy.fromString(val);
+      if (dummy.toString() == "0.0.0.0") {
+        request->send(400, "application/json", "{\"error\": \"invalid input\", \"details\": \"invalid IP address format '" + val + "' - this data will not be stored\"}");
+        return true;
+      }
+      return false;
+    }
+
+    void netSaveRequestHandler(AsyncWebServerRequest *request){
+      request->send(200, "text/plain");
+      WiFiSetup::setNetworkConfig(newNetworkConfig);
+
+      delay(3000);
+
+      ESP.restart();
+    }
+
+    void netCommandRequestHandler(AsyncWebServerRequest *request){
+      char*  buf;
+      size_t buf_len;
+      char variable[32] = {0,};
+      char value[32] = {0,};
+  
+      bool param1Available = request->hasParam("var");
+      bool param2Available = request->hasParam("val");
+      if (!param1Available || !param2Available) {
+        request->send(400, "text/plain", "bad request - expected: var=...&val=...");
+        return;
+      }
+
+      const AsyncWebParameter *param = request->getParam((size_t)0);
+      String var = request->getParam("var")->value();
+      String val = request->getParam("val")->value();
+
+      Serial.println(var + " = " + val);
+      if(var == "ip") {
+          if (checkIPfailure(var, request))
+            return;
+          newNetworkConfig.ssid = val;
+      } else if(var == "gateway") {
+        if (checkIPfailure(var, request))
+          return;
+        newNetworkConfig.gateway = val;
+      } else if(var == "netmask") {
+        if (checkIPfailure(var, request))
+          return;
+        newNetworkConfig.netmask = val;
+      } else if(var == "nodename") {
+        newNetworkConfig.nodename = val;
+      } else if(var == "ssid") {
+        newNetworkConfig.ssid = val;
+      } else if(var == "password") {
+        newNetworkConfig.pass = val;
+      } else if(var == "dhcp") {
+        newNetworkConfig.dhcp = val.toInt();
+      } else if(var == "apmode") {
+        newNetworkConfig.apmode = val.toInt();
+      }
+
+      request->send(200, "text/plain");
+    }
 
     void netStatusRequestHandler(AsyncWebServerRequest *request){
         static uint8_t json_response[1024];
@@ -15,13 +80,14 @@ namespace WEBSERVER {
         char * p = (char *)json_response;
         *p++ = '{';
     
-        p+=sprintf(p, "\"ssid\":\"%s\",", WiFiSetup::getSSID().c_str());
-        p+=sprintf(p, "\"password\":\"%s\",", WiFiSetup::getPASS().c_str());
-        p+=sprintf(p, "\"dhcp\":%u,", WiFiSetup::getDHCP());
-        p+=sprintf(p, "\"ip\":\"%s\",", WiFiSetup::getIP().c_str());
-        p+=sprintf(p, "\"netmask\":\"%s\",", WiFiSetup::getNETMASK().c_str());
-        p+=sprintf(p, "\"gateway\":\"%s\",", WiFiSetup::getGATEWAY().c_str());
-        p+=sprintf(p, "\"nodename\":\"%s\"", WiFiSetup::getNODENAME().c_str());
+        p+=sprintf(p, "\"ssid\":\"%s\",", newNetworkConfig.ssid.c_str());
+        p+=sprintf(p, "\"password\":\"%s\",", newNetworkConfig.pass.c_str());
+        p+=sprintf(p, "\"dhcp\":%u,", newNetworkConfig.dhcp);
+        p+=sprintf(p, "\"apmode\":%u,", newNetworkConfig.apmode);
+        p+=sprintf(p, "\"ip\":\"%s\",", newNetworkConfig.ip.c_str());
+        p+=sprintf(p, "\"netmask\":\"%s\",", newNetworkConfig.netmask.c_str());
+        p+=sprintf(p, "\"gateway\":\"%s\",", newNetworkConfig.gateway.c_str());
+        p+=sprintf(p, "\"nodename\":\"%s\"", newNetworkConfig.nodename.c_str());
         *p++ = '}';
         *p++ = 0;
 
@@ -31,7 +97,9 @@ namespace WEBSERVER {
         request->send(200, "text/plain",(char*)json_response);
     }
   
-    void StartServer (AsyncWebServer *server) {
+    void StartServer (AsyncWebServer *server) 
+    {
+        newNetworkConfig = WiFiSetup::getNetworkConfig();
 
         Serial.println("Install handlers ...");
 
@@ -74,9 +142,8 @@ namespace WEBSERVER {
           });
 
         server->on("/net_status", HTTP_GET, netStatusRequestHandler);
-//        server->on("/net_status", HTTP_GET, [](AsyncWebServerRequest *request){
-//          request->send(200, "text/plain","{\"ssid\":\"MySSID\",\"password\":\"MyPWD\",\"dhcp\":0,\"ip\":\"1.2.3.4\",\"netmask\":\"5.6.7.8\",\"gateway\":\"1.3.5.7\"}");
-//        });
+        server->on("/net_control", HTTP_GET, netCommandRequestHandler);
+        server->on("/net_save", HTTP_GET, netSaveRequestHandler);
 
         server->serveStatic("/", LittleFS, "/");
 

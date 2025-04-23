@@ -1,58 +1,274 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-  <title>Team Hope Technologies - Network Manager</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" href="data:,">
-  <link rel="stylesheet" type="text/css" href="style.css">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible"
+          content="IE=edge">
+    <meta name="viewport" 
+          content="width=device-width, 
+                   initial-scale=1.0">
+    <title>Team Hope</title>
+    <link rel="stylesheet" 
+          href="style.css">
+    <link rel="stylesheet" 
+          href="responsive.css">
+    <link rel="icon" href="/favicon.ico" type="image/vnd.microsoft.icon">
 </head>
+
 <body>
-  <div class="topnav">
-    <div class="header">
-		<div class="headercolumn"><img class="logo" src="hope sprung.svg"></div>
-		<div class="headercolumn">Team Hope Technologies<br>Network Manager</div>
-		<div class="headercolumn"> </div>
-	</div>
-  </div>
-  <div class="content">
-    <div class="card-grid">
-      <div class="card">
-        <form action="/" method="POST">
-          <p>
-			<table>
-				<tr>
-					<td class="header"><label for="networkmode">Network Mode</label></td>
-					<td class="input"><input type="radio" id ="wifi" name="networkmode">WiFi
-					    <input type="radio" id ="lan" name="networkmode" checked="checked">LAN</td>
-				</tr>
-				<tr>
-					<td class="header"><label for="ssid">SSID</label></td>
-					<td class="input"><input type="text" id ="ssid" name="ssid"></td>
-				</tr>
-				<tr>
-					<td class="header"><label for="pass">Password</label></td>
-					<td class="input"><input type="text" id ="pass" name="pass"></td>
-				</tr>
-				<tr>
-					<td class="header"><label for="ip">IP Address</label></td>
-					<td class="input"><input type="text" id ="ip" name="ip" value="192.168.1.200">(leave empty for DHCP)</td>
-				</tr>
-				<tr>
-					<td class="header"><label for="gateway">Gateway Address</label></td>
-					<td class="input"><input type="text" id ="gateway" name="gateway" value="192.168.1.1"></td>
-				</tr>
-				<tr>
-					<td class="header"><label for="nodename">Nodename</label></td>
-					<td class="input"><input type="text" id ="nodename" name="nodename" value="mydevice"></td>
-				</tr>
-				<tr>
-					<td class="submit" colspan=2><input type ="submit" value ="Submit"></td>
-				</td>
-			</table>
-          </p>
-        </form>
-      </div>
+  
+    <!-- for header part -->
+    <header>
+
+        <div class="logosec">
+            <img src="img/hopesprung.svg"
+                class="icn" 
+                id="hopelogo" 
+                alt="hopelogo">
+        </div>
+
+        <div class="productbar">
+            <div class="logo">Hope Cam - Inital Setup</div>
+        </div>
+
+        <div class="message " >
+            <div class="imgbox ">
+
+            </div>
+        </div>
+
+    </header>
+
+    <div class="main-container">
+        <div class="main">
+
+            <div class="option-container">
+                <div class="option-header">
+                    <h1 class="recent-Log">Initial Network Settings</h1>
+                </div>
+
+                <div class="option-body" style="width: min-content; position: relative;">
+                
+                    <div class="option-block">
+                        
+                        <h3>
+                            <div class="imgbox option-img">
+                                <img src= "img/wifi.svg"
+                                class="nav-img" 
+                                alt="network">
+                            </div>
+                            WiFi Settings</h3>
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <h3 class="t-op-nextlvl">SSID</h3>
+                            <h3 class="t-op-nextlvl"><input class="option-input default-action" type="text" id="ssid" name="ssid" required /></h3>
+                        </div>
+                        <div class="option">
+                            <h3 class="t-op-nextlvl">Password</h3>
+                            <h3 class="t-op-nextlvl"><input class="option-input default-action" type="text" id="password" name="password" required /></h3>
+                        </div>
+                        <div class="option">
+                          <h3 class="t-op-nextlvl">AP Mode</h3>
+                          <h3 class="t-op-nextlvl"><input class="option-input default-action" type="checkbox" id="apmode" name="apmode"  /></h3>
+                      </div>
+                  </div>
+
+
+                    <div class="option-block">
+                        <h3>
+                            <div class="imgbox option-img">
+                                <img src= "img/network.svg"
+                                class="nav-img" 
+                                alt="network">
+                            </div>
+                            Network Settings</h3>
+                    </div>
+                    <div class="options">
+                        <div class="option">
+                            <h3 class="t-op-nextlvl">DHCP</h3>
+                            <h3 class="t-op-nextlvl"><input class="option-input default-action" type="checkbox" id="dhcp" name="dhcp"  /></h3>
+                        </div>
+                        <div class="option">
+                            <h3 class="t-op-nextlvl">IP Address</h3>
+                            <h3 class="t-op-nextlvl"><input class="option-input default-action" type="text" id="ip" name="ip" required /></h3>
+                        </div>
+                        <div class="option">
+                            <h3 class="t-op-nextlvl">Netmask</h3>
+                            <h3 class="t-op-nextlvl"><input class="option-input default-action" type="text" id="netmask" name="netmask" required /></h3>
+                        </div>
+                        <div class="option">
+                            <h3 class="t-op-nextlvl">Gateway</h3>
+                            <h3 class="t-op-nextlvl"><input class="option-input default-action" type="text" id="gateway" name="gateway" required /></h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="option-footer">
+                  <h2 class="error-Log" id="error-Log"></h2>
+                  <section id="buttons" class="buttons">
+                    <button id="saveBtn">SAVE CONFIG</button>
+                    <script>
+                      var baseHost = document.location.origin
+                      const saveBtn = document.getElementById("saveBtn");
+                    
+                      saveBtn.onclick = () => {
+                        fetch(`${baseHost}/setup_save`)
+                          .then(res => res.text())
+                      };
+                    </script>
+                        </section>
+              </div>
+
+            </div>
+        </div>
     </div>
-  </div>
+    <script>
+
+    document.addEventListener('DOMContentLoaded', function (event) {
+        var baseHost = document.location.origin
+        var streamUrl = baseHost + ':81'
+      
+        const hide = el => {
+          el.classList.add('hidden')
+        }
+        const show = el => {
+          el.classList.remove('hidden')
+        }
+      
+        const disable = el => {
+            el.classList.add('option-input-disabled')
+            el.classList.remove('option-input')
+            el.disabled = true
+        }
+
+        const enable = el => {
+            el.classList.remove('option-input-disabled')
+            el.classList.add('option-input')
+            el.disabled = false
+        }
+
+        const dhcp = document.getElementById('dhcp')
+        const ip = document.getElementById('ip')
+        const netmask = document.getElementById('netmask')
+        const gateway = document.getElementById('gateway')
+        const errorLog = document.getElementById('error-Log')
+      
+        const updateValue = (el, value, updateRemote) => {
+          updateRemote = updateRemote == null ? true : updateRemote
+          let initialValue
+          if (el.type === 'checkbox') {
+            initialValue = el.checked
+            value = !!value
+            el.checked = value
+          } else {
+            initialValue = el.value
+            el.value = value
+          }
+      
+          if (updateRemote && initialValue !== value) {
+            updateConfig(el);
+          } else if(!updateRemote){
+            if(el.id === "aec"){
+              value ? hide(exposure) : show(exposure)
+            } else if(el.id === "dhcp"){
+                if (value) {
+                    disable(ip)
+                    disable(netmask)
+                    disable(gateway)
+                } else {
+                    enable(ip)
+                    enable(netmask)
+                    enable(gateway)
+                }
+            } else if(el.id === "awb_gain"){
+              value ? show(wb) : hide(wb)
+            } else if(el.id === "face_recognize"){
+              value ? enable(enrollButton) : disable(enrollButton)
+            }
+          }
+        }
+      
+        function updateConfig (el) {
+          let value
+          switch (el.type) {
+            case 'checkbox':
+              value = el.checked ? 1 : 0
+              break
+            case 'range':
+            case 'select-one':
+            case 'text':
+              value = el.value
+              break
+            case 'button':
+            case 'submit':
+              value = '1'
+              break
+            default:
+              return
+          }
+
+          if(el.id === "dhcp"){
+                if (value) {
+                    disable(ip)
+                    disable(netmask)
+                    disable(gateway)
+                } else {
+                    enable(ip)
+                    enable(netmask)
+                    enable(gateway)
+                }
+            }
+      
+          const query = `${baseHost}/setup_control?var=${el.id}&val=${value}`
+      
+          fetch(query)
+            .then(async response => {
+              if (!response.ok) {
+                const errorData = await response.json();
+                document.getElementById('error-Log').textContent = errorData.details;
+              } else {
+                document.getElementById('error-Log').textContent = ""
+              }
+
+
+            })
+            .catch(error => {
+              console.error('Fetch error:', error);
+            });
+            
+        }
+      
+        document
+          .querySelectorAll('.close')
+          .forEach(el => {
+            el.onclick = () => {
+              hide(el.parentNode)
+            }
+          })
+      
+        // read initial values
+        fetch(`${baseHost}/setup_status`)
+          .then(function (response) {
+            return response.json()
+          })
+          .then(function (state) {
+            document
+              .querySelectorAll('.default-action')
+              .forEach(el => {
+                updateValue(el, state[el.id], false)
+              })
+          })
+      
+        // Attach default on change action
+        document
+          .querySelectorAll('.default-action')
+          .forEach(el => {
+            el.onchange = () => updateConfig(el)
+          })
+    }); 
+      
+    </script>
+      
 </body>
 </html>

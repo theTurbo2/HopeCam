@@ -50,8 +50,7 @@ void setup() {
     //WiFiSetup::resetConfig();  
   }
 
-  //WiFiSetup::setup(WIFI_STARTUP_AP_ALWAYS);
-  WiFiSetup::setup(WIFI_STARTUP_NORMAL);
+  WiFiSetup::setup();
 
   if (WiFiSetup::initWifi(&server))
   {

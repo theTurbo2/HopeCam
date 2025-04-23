@@ -301,6 +301,8 @@ header {
   border-radius: 30px;
   box-shadow: 3px 3px 10px rgb(188, 188, 188);
   padding: 0px 20px 20px 20px;
+  z-index: -5;
+  position: absolute;
 }
 .stream-header {
   height: 80px;
@@ -320,6 +322,8 @@ header {
   border-radius: 30px;
   box-shadow: 3px 3px 10px rgb(188, 188, 188);
   padding: 0px 20px 20px 20px;
+  z-index: -5;
+  position: absolute;
 }
 .option-header {
   height: 80px;
@@ -331,6 +335,22 @@ header {
   border-bottom: 2px solid rgba(255, 128, 0, 0.59);
 }
 
+.option-footer {
+  min-height: 80px;
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 20px 20px 10px 20px;
+  margin-top: 20px;
+  border-top: 2px solid rgba(255, 128, 0, 0.59);
+  flex-direction: column;
+  align-content: flex-start;
+}
+
+.option-footer h2 {
+  color: #ff0000;
+}
 .recent-Log {
   font-size: 30px;
   font-weight: 600;
@@ -417,3 +437,32 @@ header {
   background-color: rgb(255, 0, 0);
   color: rgb(0, 0, 0);
 }
+
+.buttons button {
+    box-shadow:inset 0px 2px 0px 0px #ffffff;
+    background:linear-gradient(to bottom, #ffc062 5%, #ff8000 100%);
+    background-color:#ffc062;
+    border-radius:8px;
+    border:1px solid #ff8000;
+    display:inline-block;
+    cursor:pointer;
+    color:#ffffff;
+    font-family:Arial;
+    font-size:15px;
+    font-weight:bold;
+    padding:10px 40px;
+    text-decoration:none;
+    text-shadow:0px 1px 0px #ffee66;
+  }
+.buttons button:hover {
+    background:linear-gradient(to bottom, #ff8000 5%, #ffc062 100%);
+    box-shadow:inset 0px 2px 0px 0px #eeeeee;
+    background-color:#ff8000;
+    color:#333333;
+  }
+.buttons button:active {
+    position:relative;
+    top:1px; left: 1px;
+  }
+
+  
