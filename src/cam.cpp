@@ -266,19 +266,23 @@ namespace CAM
 
     while (bmp_y >= 0 && (bytesWritten + bmp_rowSize) <= maxLen) {
         uint8_t *lineBuf = buffer + bytesWritten;
+        const uint8_t *row = &fb->buf[bmp_y * bmp_width * 2];
         int idx = 0;
         for (int x = 0; x < bmp_width; x++) {
-          uint8_t high  = fb->buf[(bmp_y * bmp_width + x) * 2];
-          uint8_t low = fb->buf[(bmp_y * bmp_width + x) * 2 + 1];
+          uint8_t high = row[x * 2];
+          uint8_t low  = row[x * 2 + 1];
 
           uint16_t pixel = (high << 8) | low;
 
-          uint8_t r = (uint8_t)(((pixel >> 11) & 0x1F) * 255 / 31);
-          uint8_t g = (uint8_t)(((pixel >> 5) & 0x3F) * 255 / 63);
-          uint8_t b = (uint8_t)((pixel & 0x1F) * 255 / 31);
-            lineBuf[idx++] = b;
-            lineBuf[idx++] = g;
-            lineBuf[idx++] = r;
+          uint8_t r5 = (pixel >> 11) & 0x1F;
+          uint8_t g6 = (pixel >> 5)  & 0x3F;
+          uint8_t b5 =  pixel        & 0x1F;
+          uint8_t r = (r5 << 3) | (r5 >> 2);
+          uint8_t g = (g6 << 2) | (g6 >> 4);
+          uint8_t b = (b5 << 3) | (b5 >> 2);
+          lineBuf[idx++] = b;
+          lineBuf[idx++] = g;
+          lineBuf[idx++] = r;
         }
         while (idx < bmp_rowSize) lineBuf[idx++] = 0x00;
         bytesWritten += bmp_rowSize;
@@ -423,8 +427,8 @@ namespace CAM
     //      config.frame_size = FRAMESIZE_UXGA;
     //config.frame_size = FRAMESIZE_QVGA; // 5: 320x240
       config.frame_size = FRAMESIZE_HQVGA; // 3: 240x176
-      config.jpeg_quality = 12;
-      config.fb_count = 1;
+      config.jpeg_quality = 16;
+      config.fb_count = 2;
     } else {
       config.frame_size = FRAMESIZE_SVGA;
       config.jpeg_quality = 12;

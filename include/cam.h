@@ -27,7 +27,7 @@ namespace CAM {
           size_t _headerLen;
           size_t _index;
           unsigned long _lastFrame;
-          bool _disconnected;
+          volatile bool _disconnected;
     };
 
     class BMPStreamResponse : public AsyncAbstractResponse {
