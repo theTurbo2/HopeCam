@@ -425,10 +425,10 @@ namespace CAM
       Serial.println("psram found");
 
     //      config.frame_size = FRAMESIZE_UXGA;
-    //config.frame_size = FRAMESIZE_QVGA; // 5: 320x240
-      config.frame_size = FRAMESIZE_HQVGA; // 3: 240x176
-      config.jpeg_quality = 16;
-      config.fb_count = 2;
+    //config.frame_size = FRAMESIZE_HQVGA; // 3: 240x176
+      config.frame_size = FRAMESIZE_QVGA; // 5: 320x240 - matches receiver display 1:1 so receiver can draw native (no upscale)
+      config.jpeg_quality = 22;  // higher number = more compression -> steadier frame size under motion
+      config.fb_count = 1;       // single buffer: drop late frames instead of queueing -> no motion-induced freezes
     } else {
       config.frame_size = FRAMESIZE_SVGA;
       config.jpeg_quality = 12;
