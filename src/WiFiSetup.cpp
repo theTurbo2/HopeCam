@@ -117,7 +117,8 @@ namespace WiFiSetup
                         WiFi.SSID(i).c_str(),
                         WiFi.RSSI(i),
                         WiFi.encryptionType(i) == WIFI_AUTH_OPEN ? "Open" : "Encrypted");
-          if (WiFi.SSID(i) == "turbos_wlan") {
+/*
+                        if (WiFi.SSID(i) == "turbos_wlan") {
             Serial.println("Cheating with turbos_wlan");
             apmode = false;
             dhcp = true,
@@ -140,7 +141,17 @@ namespace WiFiSetup
             WiFi.scanDelete();
             return true;
           }
-        }
+*/
+Serial.println("Fixed setup with v250");
+apmode = true;
+dhcp = true,
+nodename = "HomeCam";
+pass = "TeamHope";
+ssid = "v250";
+
+WiFi.scanDelete();
+return true;
+}
       }
     
       WiFi.scanDelete();

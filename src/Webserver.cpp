@@ -123,7 +123,7 @@ namespace WEBSERVER {
         // MJPEG route
         // This route uses a raw client stream for MJPEG
         server->on("/stream", HTTP_GET, [](AsyncWebServerRequest *request){
-            request->send(new CAM::MJPEGStream());
+            request->send(new CAM::MJPEGStream(request));
           });
 
         // Web Server Root URL
@@ -140,6 +140,14 @@ namespace WEBSERVER {
               request->send(400, "text/plain", "Missing 'on' parameter");
             }
           });
+
+        server->on("/bmp", HTTP_GET, [](AsyncWebServerRequest *request){
+          request->send(new CAM::BMPStreamResponse());
+        });
+        
+        server->on("/rgb", HTTP_GET, [](AsyncWebServerRequest *request){
+          request->send(new CAM::RGBStreamResponse());
+        });
 
         server->on("/net_status", HTTP_GET, netStatusRequestHandler);
         server->on("/net_control", HTTP_GET, netCommandRequestHandler);
